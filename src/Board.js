@@ -140,7 +140,7 @@
       // [0][2], [1][2]
 
 
-      //     0  1  2  3  (column index)
+      //     0  1  2  3  (column index) n = 4
       //0:  [1, 2, 3, 4]
       //1:  [5, 6, 7, 8]
       //2:  [9, 0, 1, 2]
@@ -171,22 +171,13 @@
       var playArea = this.rows();
       // console.log('play ', playArea);
       var num = majorDiagonalColumnIndexAtFirstRow;
-      if(num < 0) {
-        num += 1;
-      } else if(num > 0) {
-        num -= 1;
-      }
-      console.log('num ',num);
       var count = 0;
       for (var i = 0; i < (this.get('n') - Math.abs(num)); i++) {
-        console.log('i ',i);
         if(num > 0) {
           count += playArea[i][i + num];
-          return;
         } else if (num === 0) {
           count += playArea[i][i];
         } else {
-          console.log('[', i + Math.abs(num), '][', i,']');
           count += playArea[i + Math.abs(num)][i];
         }
         if (count > 1) { return true; }
@@ -198,7 +189,7 @@
     hasAnyMajorDiagonalConflicts: function() {
 
       var n = this.get('n');
-      for (i = -(n - 1); i < n; i++) {
+      for (i = -(n - 2); i < n-1; i++) {
         if (this.hasMajorDiagonalConflictAt(i)) {
           return true;
         }
@@ -213,11 +204,63 @@
     //
     // test if a specific minor diagonal on this board contains a conflict
     hasMinorDiagonalConflictAt: function(minorDiagonalColumnIndexAtFirstRow) {
-      return false; // fixme
+
+      // _getFirstRowColumnIndexForMinorDiagonalOn: function(rowIndex, colIndex) {
+      //   return colIndex + rowIndex;
+
+      //     0  1  2  3          0  1  2  3            (column index) n = 4
+      //0:  [1, 2, 3, 4]        [0, 1, 2, 3]
+      //1:  [5, 6, 7, 8]        [1, 2, 3, 4]
+      //2:  [9, 0, 1, 2]        [2, 3, 4, 5]
+      //3:  [3, 4, 5, 6]        [3, 4, 5, 6]
+
+      // diagonal:  n = 4
+      //
+      // [3][2], [2][3]                   => [(n-i)-1][i+2]        loop (n-2)  <--- 5
+      // [3][1], [2][2], [1][3]           => [(n-i)-1][i+1]     loop  (n-1) <--- 4       if num > than (n-1), then loopstop = n - (num - (n-1))
+      // [3][0], [2][1], [1][2], [0][3] , => [(n-i)-1][i]       loop (n)    <--- 3       if num == (n-1) then loopstop = n
+      // [2][0], [1][1], [0][2]           => [num-i][i]           loop (n-1)  <--- 2     if num < than n-1, then loopstop = n - ((n-1) - num))
+      // [1][0], [0][1],                  => [num-i][i]            loop (n-2)   <--- 1 num
+      //
+
+      // n = 4 (range of 1 to 5), middle of (n-1)
+
+      var playArea = this.rows();
+      var num = minorDiagonalColumnIndexAtFirstRow;
+      var n = this.get('n');
+      var count = 0;
+      var loopstop;
+      if (num > (n-1)) {
+        loopstop = n - (num - (n-1));
+      } else if (num === (n-1)) {
+        loopstop = n;
+      } else {
+        loopstop = n - ((n-1) - num);
+      }
+      for (var i = 0; i < loopstop; i++) {
+        var inc = 2;
+        if(num > (n-1)) {
+          count += playArea[(n-i)-1][i + (num-3)];
+        } else if (num === (n-1)) {
+          count += playArea[(n - i) - 1][i];
+        } else {
+          count += playArea[num-i][i];
+        }
+        if (count > 1) { return true; }
+      }
+      return false;
     },
 
     // test if any minor diagonals on this board contain conflicts
     hasAnyMinorDiagonalConflicts: function() {
+      //         4-3   4+1
+      // loop from 1 to 5
+      var n = this.get('n');
+      for (i = (n - 3); i < n + 2; i++) {
+        if (this.hasMinorDiagonalConflictAt(i)) {
+          return true;
+        }
+      }
       return false; // fixme
     }
 
