@@ -225,43 +225,70 @@
 
       // n = 4 (range of 1 to 5), middle of (n-1)
 
-      var playArea = this.rows();
-      var num = minorDiagonalColumnIndexAtFirstRow;
-      var n = this.get('n');
+      //   var playArea = this.rows();
+      //   var num = minorDiagonalColumnIndexAtFirstRow;
+      //   var n = this.get('n');
+      //   var count = 0;
+      //   var loopstop;
+      //   if (num > (n-1)) {
+      //     loopstop = n - (num - (n-1));
+      //   } else if (num === (n-1)) {
+      //     loopstop = n;
+      //   } else {
+      //     loopstop = n - ((n-1) - num);
+      //   }
+      //   for (var i = 0; i < loopstop; i++) {
+      //     var inc = 2;
+      //     if(num > (n-1)) {
+      //       count += playArea[(n-i)-1][i + (num-3)];
+      //     } else if (num === (n-1)) {
+      //       count += playArea[(n - i) - 1][i];
+      //     } else {
+      //       count += playArea[num-i][i];
+      //     }
+      //     if (count > 1) { return true; }
+      //   }
+      //   return false;
+
+
+      var size = this.get('n');
       var count = 0;
-      var loopstop;
-      if (num > (n-1)) {
-        loopstop = n - (num - (n-1));
-      } else if (num === (n-1)) {
-        loopstop = n;
-      } else {
-        loopstop = n - ((n-1) - num);
-      }
-      for (var i = 0; i < loopstop; i++) {
-        var inc = 2;
-        if(num > (n-1)) {
-          count += playArea[(n-i)-1][i + (num-3)];
-        } else if (num === (n-1)) {
-          count += playArea[(n - i) - 1][i];
-        } else {
-          count += playArea[num-i][i];
+      var rowIdx = 0;
+      var colIdx = minorDiagonalColumnIndexAtFirstRow;
+
+      for ( ; rowIdx < size && colIdx >= 0; rowIdx++, colIdx-- ) {
+        if ( colIdx < size ) {
+          var row = this.get(rowIdx);
+          count += row[colIdx];
         }
-        if (count > 1) { return true; }
       }
-      return false;
+
+      return count > 1;
+
+
     },
 
     // test if any minor diagonals on this board contain conflicts
     hasAnyMinorDiagonalConflicts: function() {
       //         4-3   4+1
       // loop from 1 to 5
-      var n = this.get('n');
-      for (i = (n - 3); i < n + 2; i++) {
-        if (this.hasMinorDiagonalConflictAt(i)) {
+      // var n = this.get('n');
+      // for (i = (n - 3); i < n + 2; i++) {
+      //   if (this.hasMinorDiagonalConflictAt(i)) {
+      //     return true;
+      //   }
+      // }
+      // return false; // fixme
+
+      var size = this.get('n');
+
+      for ( var i = (size * 2) - 1; i >= 0; i-- ) {
+        if ( this.hasMinorDiagonalConflictAt(i) ) {
           return true;
         }
       }
-      return false; // fixme
+
+      return false;
     }
 
     /*--------------------  End of Helper Functions  ---------------------*/
